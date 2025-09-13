@@ -187,39 +187,48 @@ class _MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [
-            Colors.white.withOpacity(0.1),
-            Colors.white.withOpacity(0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0.8, end: 1.0),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutBack,
+      builder: (context, scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: child,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          gradient: LinearGradient(
+            colors: [
+              Colors.white.withOpacity(0.1),
+              Colors.white.withOpacity(0.05),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
         ),
-        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(24),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(icon, color: Colors.white, size: 30),
                   ),
-                  child: Icon(icon, color: Colors.white, size: 30),
-                ),
-
-                const SizedBox(width: 16),
+                  const SizedBox(width: 16),
 
                 Expanded(
                   child: Column(

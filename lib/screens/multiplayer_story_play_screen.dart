@@ -34,11 +34,12 @@ class _MultiplayerStoryPlayScreenState
   bool _isGenerating = false;
   bool _isGameComplete = false;
 
-  // Мультиплеер состояние
+  // МультиплеЕР состояние
   bool _waitingForOtherPlayer = false;
   int? _myChoice;
   int? _otherPlayerChoice;
   String _otherPlayerName = '';
+  int _relationshipScore = 50;
 
   late AnimationController _fadeController;
 
@@ -75,22 +76,30 @@ class _MultiplayerStoryPlayScreenState
     try {
       final prompt =
           '''
-Создай начало интерактивной истории в жанре "${_getGenreText(widget.settings.genre)}" с двумя персонажами: "${widget.settings.player1Name}" и "${widget.settings.player2Name}".
+Ты — Мастер Историй. Твоя задача — создать захватывающее начало для интерактивной истории.
 
-Тип отношений: ${_getRelationshipText(widget.settings.relationshipType)}
-Место действия: ${widget.settings.setting}
-Уровень сложности: ${widget.settings.complexityLevel}/5
+**Параметры:**
+- **Жанр:** ${_getGenreText(widget.settings.genre)}
+- **Персонажи:**
+  - **Игрок 1:** ${widget.settings.player1Name}
+  - **Игрок 2:** ${widget.settings.player2Name}
+- **Отношения:** ${_getRelationshipText(widget.settings.relationshipType)}
+- **Место действия:** ${widget.settings.setting}
+- **Сложность:** ${widget.settings.complexityLevel}/5
+${widget.settings.customPrompt.isNotEmpty ? '- **Дополнительные пожелания:** ${widget.settings.customPrompt}' : ''}
 
-${widget.settings.customPrompt.isNotEmpty ? 'Дополнительные требования: ${widget.settings.customPrompt}' : ''}
+**Твоя задача:**
+1.  **Создай атмосферную завязку:** Напиши 2-3 абзаца, которые погрузят игроков в мир истории. Опиши место, время и обстоятельства, в которых находятся персонажи.
+2.  **Предложи 3 интригующих варианта действий:** Варианты должны быть разными и давать игрокам возможность проявить себя.
 
-Создай захватывающее начало истории (2-3 абзаца) и предложи 3 варианта действий для игроков.
+**Формат ответа (СТРОГО):**
+ИСТОРИЯ:
+[Текст начала истории]
 
-Формат ответа:
-ИСТОРИЯ: [начало истории 2-3 абзаца]
 ВАРИАНТЫ:
-1. [первый вариант действия]
-2. [второй вариант действия]
-3. [третий вариант действия]
+1. [Первый вариант] | {"relationship": 0}
+2. [Второй вариант] | {"relationship": 0}
+3. [Третий вариант] | {"relationship": 0}
 ''';
 
       final response = await _storyService.generateStory(prompt);
@@ -133,6 +142,14 @@ ${widget.settings.customPrompt.isNotEmpty ? 'Дополнительные тре
       _waitingForOtherPlayer = true;
     });
 
+    // Apply relationship score effect
+    final choice = _storySegments[_currentSegmentIndex].choices[choiceIndex];
+    if (choice.effects != null && choice.effects!.containsKey('relationship')) {
+      setState(() {
+        _relationshipScore += (choice.effects!['relationship'] as int?) ?? 0;
+      });
+    }
+
     // Симулируем ожидание выбора другого игрока
     await Future.delayed(const Duration(seconds: 2));
 
@@ -156,8 +173,8 @@ ${widget.settings.customPrompt.isNotEmpty ? 'Дополнительные тре
 
     try {
       final currentSegment = _storySegments[_currentSegmentIndex - 1];
-      final myChoiceText = currentSegment.choices[_myChoice!];
-      final otherChoiceText = currentSegment.choices[_otherPlayerChoice!];
+      final myChoiceText = currentSegment.choices[_myChoice!].text;
+      final otherChoiceText = currentSegment.choices[_otherPlayerChoice!].text;
 
       final myName = widget.isHost
           ? widget.settings.player1Name
@@ -170,22 +187,28 @@ ${widget.settings.customPrompt.isNotEmpty ? 'Дополнительные тре
 
       final prompt =
           '''
-Продолжи интерактивную историю. 
+Ты — Мастер Историй. Твоя задача — продолжить интерактивную историю.
 
-Контекст предыдущих событий:
+**Контекст предыдущих событий:**
 $storyContext
 
-$myName выбрал: "$myChoiceText"
-$otherName выбрал: "$otherChoiceText"
+**Выборы игроков:**
+- **$myName:** "$myChoiceText"
+- **$otherName:** "$otherChoiceText"
 
-Развей события дальше с учетом выборов обоих игроков. ${_storySegments.length >= 4 ? 'Это должна быть финальная сцена с завершением истории.' : 'Предложи 3 новых варианта действий.'}
+**Твоя задача:**
+1.  **Опиши последствия выборов:** Расскажи, к чему привели действия игроков.
+2.  **Развей сюжет:** Продвинь историю дальше, создав новые события или диалоги.
+3.  **Предложи 3 новых выбора:** В конце предложи 3 новых варианта действий, которые повлияют на сюжет и отношения. Укажи эффект на отношения для каждого выбора.
 
-${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [завершение истории 2-3 абзаца]' : '''Формат ответа:
-ИСТОРИЯ: [2-3 абзаца развития событий]
-ВАРИАНТЫ:
-1. [первый вариант действия]
-2. [второй вариант действия]
-3. [третий вариант действия]'''}
+**Формат ответа (СТРОГО):**
+ИСТОРИЯ:
+[Текст продолжения истории]
+
+${_storySegments.length >= 4 ? 'ФИНАЛ: [Завершение истории]' : '''ВАРИАНТЫ:
+1. [Первый вариант] | {"relationship": 5}
+2. [Второй вариант] | {"relationship": -5}
+3. [Третий вариант] | {"relationship": 0}'''}
 ''';
 
       final response = await _storyService.generateStory(prompt);
@@ -226,21 +249,31 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
       final storyText = parts[0].replaceAll('ИСТОРИЯ:', '').trim();
 
       final choicesText = parts.length > 1 ? parts[1] : '';
-      final choices = <String>[];
+      final choices = <Choice>[];
 
       final lines = choicesText.split('\n');
       for (final line in lines) {
         final trimmed = line.trim();
         if (trimmed.startsWith(RegExp(r'[123]\.'))) {
-          choices.add(trimmed.substring(2).trim());
+          final parts = trimmed.substring(2).trim().split('|');
+          final text = parts[0].trim();
+          Map<String, dynamic>? effects;
+          if (parts.length > 1) {
+            try {
+              effects = jsonDecode(parts[1].trim()) as Map<String, dynamic>;
+            } catch (e) {
+              // Ignore parsing errors
+            }
+          }
+          choices.add(Choice(text: text, effects: effects));
         }
       }
 
       if (choices.isEmpty && !response.contains('ФИНАЛ:')) {
         choices.addAll([
-          'Продолжить исследование',
-          'Поговорить с партнером',
-          'Принять решение',
+          Choice(text: 'Продолжить исследование'),
+          Choice(text: 'Поговорить с партнером'),
+          Choice(text: 'Принять решение'),
         ]);
       }
 
@@ -251,9 +284,9 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
         choices: response.contains('ФИНАЛ:')
             ? []
             : [
-                'Продолжить исследование',
-                'Поговорить с партнером',
-                'Принять решение',
+                Choice(text: 'Продолжить исследование'),
+                Choice(text: 'Поговорить с партнером'),
+                Choice(text: 'Принять решение'),
               ],
         index: index,
       );
@@ -362,24 +395,35 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
                       ),
                     ),
                     // Индикатор прогресса
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Text(
-                        '${_currentSegmentIndex + 1}/5',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      children: [
+                        const Icon(Icons.favorite, color: Colors.red, size: 16),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$_relationshipScore',
+                          style: const TextStyle(color: Colors.white),
                         ),
-                      ),
-                    ),
+                        const SizedBox(width: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '${_currentSegmentIndex + 1}/5',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -417,6 +461,9 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
                                 : Colors.grey,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
                           ),
                         ),
                       ),
@@ -430,6 +477,9 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
                             backgroundColor: Colors.blue,
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
                           ),
                         ),
                       ),
@@ -477,10 +527,10 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: Colors.white.withOpacity(0.3),
-                width: 2,
+                width: 1,
               ),
               boxShadow: [
                 BoxShadow(
@@ -512,7 +562,7 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.orange.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(15),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: Colors.orange.withOpacity(0.5)),
               ),
               child: Column(
@@ -603,7 +653,7 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
                           horizontal: 20,
                         ),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         elevation: 5,
                       ),
@@ -652,10 +702,10 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
               padding: const EdgeInsets.all(25),
               decoration: BoxDecoration(
                 color: Colors.green.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: Colors.green.withOpacity(0.5),
-                  width: 2,
+                  width: 1,
                 ),
               ),
               child: const Column(
@@ -693,9 +743,16 @@ ${_storySegments.length >= 4 ? 'Формат ответа:\nФИНАЛ: [зав�
 }
 
 // Модель сегмента истории для мультиплеера
+class Choice {
+  final String text;
+  final Map<String, dynamic>? effects;
+
+  Choice({required this.text, this.effects});
+}
+
 class StorySegment {
   final String text;
-  final List<String> choices;
+  final List<Choice> choices;
   final int index;
 
   StorySegment({

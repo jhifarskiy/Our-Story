@@ -187,28 +187,38 @@ class _StoryBuilderScreenState extends ConsumerState<StoryBuilderScreen> {
     required String title,
     required List<Widget> children,
   }) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white.withValues(alpha: 0.1),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Cinzel',
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0.0, end: 1.0),
+      duration: const Duration(milliseconds: 500),
+      builder: (context, opacity, child) {
+        return Opacity(
+          opacity: opacity,
+          child: child,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: Colors.white.withOpacity(0.1),
+          border: Border.all(color: Colors.white.withOpacity(0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Cinzel',
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          ...children,
-        ],
+            const SizedBox(height: 16),
+            ...children,
+          ],
+        ),
       ),
     );
   }
@@ -231,11 +241,11 @@ class _StoryBuilderScreenState extends ConsumerState<StoryBuilderScreen> {
         labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
         hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.white),
         ),
       ),
@@ -261,14 +271,14 @@ class _StoryBuilderScreenState extends ConsumerState<StoryBuilderScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(24),
               color: isSelected
-                  ? Colors.white.withValues(alpha: 0.3)
-                  : Colors.white.withValues(alpha: 0.1),
+                  ? Colors.white.withOpacity(0.3)
+                  : Colors.white.withOpacity(0.1),
               border: Border.all(
                 color: isSelected
                     ? Colors.white
-                    : Colors.white.withValues(alpha: 0.3),
+                    : Colors.white.withOpacity(0.3),
               ),
             ),
             child: Text(
@@ -297,14 +307,14 @@ class _StoryBuilderScreenState extends ConsumerState<StoryBuilderScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(24),
               color: isSelected
-                  ? Colors.white.withValues(alpha: 0.3)
-                  : Colors.white.withValues(alpha: 0.1),
+                  ? Colors.white.withOpacity(0.3)
+                  : Colors.white.withOpacity(0.1),
               border: Border.all(
                 color: isSelected
                     ? Colors.white
-                    : Colors.white.withValues(alpha: 0.3),
+                    : Colors.white.withOpacity(0.3),
               ),
             ),
             child: Text(
@@ -332,6 +342,10 @@ class _StoryBuilderScreenState extends ConsumerState<StoryBuilderScreen> {
       '🏔️ Горы',
       '🌲 Лес',
       '🏠 Маленький городок',
+      '🏜️ Пустыня',
+      '🌆 Киберпанк-город',
+      '🏚️ Постапокалипсис',
+      '🤠 Дикий Запад',
     ];
 
     // Защита от старых значений без эмодзи
@@ -343,11 +357,11 @@ class _StoryBuilderScreenState extends ConsumerState<StoryBuilderScreen> {
       value: _selectedSetting,
       decoration: InputDecoration(
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Colors.white),
         ),
       ),
@@ -423,7 +437,7 @@ class _StoryBuilderScreenState extends ConsumerState<StoryBuilderScreen> {
           width: double.infinity,
           height: 56,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(30),
             gradient: const LinearGradient(
               colors: [Colors.blue, Colors.purple],
             ),
@@ -469,7 +483,7 @@ class _StoryBuilderScreenState extends ConsumerState<StoryBuilderScreen> {
           width: double.infinity,
           height: 56,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(30),
             gradient: const LinearGradient(
               colors: [Colors.amber, Colors.orange],
             ),

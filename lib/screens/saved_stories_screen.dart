@@ -214,16 +214,26 @@ class _SavedStoriesScreenState extends ConsumerState<SavedStoriesScreen>
   }
 
   Widget _buildStoryCard(SavedStory story) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
-      ),
-      child: InkWell(
-        onTap: () => _continueStory(story),
-        borderRadius: BorderRadius.circular(16),
+    return TweenAnimationBuilder(
+      tween: Tween<double>(begin: 0.8, end: 1.0),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutBack,
+      builder: (context, scale, child) {
+        return Transform.scale(
+          scale: scale,
+          child: child,
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+        ),
+        child: InkWell(
+          onTap: () => _continueStory(story),
+          borderRadius: BorderRadius.circular(24),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -366,7 +376,7 @@ class _SavedStoriesScreenState extends ConsumerState<SavedStoriesScreen>
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     story.segments.last.text,
