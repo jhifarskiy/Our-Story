@@ -3,6 +3,17 @@ allprojects {
         google()
         mavenCentral()
     }
+    
+    // Принудительно устанавливаем Java 17 для всех подпроектов
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = JavaVersion.VERSION_17.toString()
+        targetCompatibility = JavaVersion.VERSION_17.toString()
+        options.compilerArgs.addAll(listOf(
+            "-Xlint:-options",
+            "-Xlint:-deprecation",
+            "-Xlint:-unchecked"
+        ))
+    }
 }
 
 val newBuildDir: Directory =

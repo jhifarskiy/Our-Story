@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'home_screen.dart';
-import '../providers/story_provider.dart';
 
-class SplashScreen extends ConsumerStatefulWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen>
+class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -18,14 +16,12 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   @override
   void initState() {
     super.initState();
-
     _animationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
 
     _initializeApp();
@@ -35,12 +31,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     // Запуск анимации
     _animationController.forward();
 
-    // Загрузка данных
-    await Future.wait([
-      ref.read(chaptersProvider.future),
-      ref.read(charactersProvider.future),
-      Future.delayed(const Duration(seconds: 2)), // Минимальное время показа
-    ]);
+    // Минимальное время показа сплеш-скрина
+    await Future.delayed(const Duration(seconds: 3));
 
     // Переход на главный экран
     if (mounted) {
@@ -80,55 +72,36 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
-
-              const SizedBox(height: 32),
+              const SizedBox(height: 30),
 
               // Название приложения
               Text(
                 'Our Story',
-                style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                  fontFamily: 'Cinzel',
+                style: TextStyle(
+                  fontSize: 32,
                   fontWeight: FontWeight.bold,
+                  fontFamily: 'Cinzel',
                   color: Theme.of(context).colorScheme.primary,
                 ),
               ),
-
-              const SizedBox(height: 16),
+              const SizedBox(height: 10),
 
               // Подзаголовок
               Text(
-                'Интерактивная визуальная новелла',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                'Интерактивная история с ИИ',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Cinzel',
                   color: Theme.of(
                     context,
                   ).colorScheme.onSurface.withOpacity(0.7),
                 ),
-                textAlign: TextAlign.center,
               ),
-
-              const SizedBox(height: 48),
+              const SizedBox(height: 50),
 
               // Индикатор загрузки
-              SizedBox(
-                width: 50,
-                height: 50,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              Text(
-                'Загрузка...',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withOpacity(0.7),
-                ),
+              CircularProgressIndicator(
+                color: Theme.of(context).colorScheme.primary,
               ),
             ],
           ),

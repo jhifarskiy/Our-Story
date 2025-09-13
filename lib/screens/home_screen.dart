@@ -1,129 +1,168 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/story_provider.dart';
-import 'chapters_screen.dart';
 import 'settings_screen.dart';
-import 'font_test_screen.dart';
-import 'avatar_test_screen.dart';
-import 'ai_story_screen.dart';
+import 'story_builder_screen.dart';
+import 'multiplayer_join_screen.dart';
+import 'solo_game_screen.dart';
+import 'usage_stats_screen.dart';
+import 'saved_stories_screen.dart';
 import '../widgets/gradient_background.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final gameProgress = ref.watch(gameProgressProvider);
-
+  Widget build(BuildContext context) {
     return Scaffold(
       body: GradientBackground(
         child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Заголовок
-                Text(
-                  'Our Story',
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                    fontFamily: 'Cinzel',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                const SizedBox(height: 40),
+                Center(
+                  child: Text(
+                    'Our Story',
+                    style: TextStyle(
+                      fontSize: 42,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'Cinzel',
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(
+                          offset: const Offset(2, 2),
+                          blurRadius: 4,
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      ],
+                    ),
                   ),
-                  textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: 8),
-
-                Text(
-                  'Интерактивная визуальная новелла',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Colors.white.withOpacity(0.8),
+                const SizedBox(height: 10),
+                Center(
+                  child: Text(
+                    'Интерактивная история с ИИ',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'Cinzel',
+                      color: Colors.white.withOpacity(0.8),
+                      shadows: [
+                        Shadow(
+                          offset: const Offset(1, 1),
+                          blurRadius: 2,
+                          color: Colors.black.withOpacity(0.5),
+                        ),
+                      ],
+                    ),
                   ),
-                  textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 60),
 
-                // Кнопки меню
-                _MenuButton(
-                  icon: Icons.play_arrow,
-                  title: gameProgress.value != null
-                      ? 'Продолжить'
-                      : 'Новая игра',
-                  subtitle: gameProgress.value != null
-                      ? 'Последнее сохранение: ${_formatDate(gameProgress.value!.lastPlayed)}'
-                      : 'Начать новое приключение',
-                  onTap: () => _startGame(context, ref),
-                ),
+                // Главное меню
+                Expanded(
+                  child: ListView(
+                    children: [
+                      _MenuButton(
+                        title: 'Играть соло',
+                        subtitle: 'Быстрый старт для тестирования',
+                        icon: Icons.play_arrow,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SoloGameScreen(),
+                            ),
+                          );
+                        },
+                      ),
 
-                const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                _MenuButton(
-                  icon: Icons.library_books,
-                  title: 'Главы',
-                  subtitle: 'Выберите главу для чтения',
-                  onTap: () => _navigateToChapters(context),
-                ),
+                      _MenuButton(
+                        title: 'Создать историю ИИ',
+                        subtitle: 'Новое приключение вдвоем',
+                        icon: Icons.auto_awesome,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const StoryBuilderScreen(),
+                            ),
+                          );
+                        },
+                      ),
 
-                const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                _MenuButton(
-                  icon: Icons.settings,
-                  title: 'Настройки',
-                  subtitle: 'Настройка игры и звука',
-                  onTap: () => _navigateToSettings(context),
-                ),
+                      _MenuButton(
+                        title: 'Присоединиться к игре',
+                        subtitle: 'Введите код комнаты',
+                        icon: Icons.group_add,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const MultiplayerJoinScreen(),
+                            ),
+                          );
+                        },
+                      ),
 
-                const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                _MenuButton(
-                  icon: Icons.font_download,
-                  title: 'Тест шрифтов',
-                  subtitle: 'Проверка загрузки Cinzel',
-                  onTap: () => _navigateToFontTest(context),
-                ),
+                      _MenuButton(
+                        title: 'Сохраненные истории',
+                        subtitle: 'Продолжить или просмотреть',
+                        icon: Icons.bookmark,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SavedStoriesScreen(),
+                            ),
+                          );
+                        },
+                      ),
 
-                const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                _MenuButton(
-                  icon: Icons.account_circle,
-                  title: 'Тест аватаров',
-                  subtitle: 'Проверка загрузки изображений',
-                  onTap: () => _navigateToAvatarTest(context),
-                ),
+                      _MenuButton(
+                        title: 'Статистика ИИ',
+                        subtitle: 'Использование и лимиты',
+                        icon: Icons.analytics,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const UsageStatsScreen(),
+                            ),
+                          );
+                        },
+                      ),
 
-                const SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
-                _MenuButton(
-                  icon: Icons.auto_stories,
-                  title: 'AI Генератор',
-                  subtitle: 'Создание историй с помощью ИИ',
-                  onTap: () => _navigateToAiStory(context),
-                ),
-
-                const SizedBox(height: 16),
-
-                _MenuButton(
-                  icon: Icons.info,
-                  title: 'О игре',
-                  subtitle: 'Информация о разработчиках',
-                  onTap: () => _showAboutDialog(context),
-                ),
-
-                const SizedBox(height: 48),
-
-                // Версия приложения
-                Text(
-                  'Версия 1.0.0',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withOpacity(0.6),
+                      _MenuButton(
+                        title: 'Настройки',
+                        subtitle: 'Конфигурация приложения',
+                        icon: Icons.settings,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SettingsScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                  textAlign: TextAlign.center,
                 ),
-
-                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -131,79 +170,18 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
-
-  void _startGame(BuildContext context, WidgetRef ref) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const ChaptersScreen()));
-  }
-
-  void _navigateToChapters(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const ChaptersScreen()));
-  }
-
-  void _navigateToSettings(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const SettingsScreen()));
-  }
-
-  void _navigateToFontTest(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const FontTestScreen()));
-  }
-
-  void _navigateToAvatarTest(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const AvatarTestScreen()));
-  }
-
-  void _navigateToAiStory(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const AiStoryScreen()));
-  }
-
-  void _showAboutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('О игре'),
-        content: const Text(
-          'Our Story - это интерактивная визуальная новелла, '
-          'созданная с использованием Flutter.\n\n'
-          'Разработчик: Ваше имя\n'
-          'Версия: 1.0.0',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Закрыть'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}.${date.month}.${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
-  }
 }
 
 class _MenuButton extends StatelessWidget {
-  final IconData icon;
   final String title;
   final String subtitle;
+  final IconData icon;
   final VoidCallback onTap;
 
   const _MenuButton({
-    required this.icon,
     required this.title,
     required this.subtitle,
+    required this.icon,
     required this.onTap,
   });
 
@@ -212,26 +190,33 @@ class _MenuButton extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: Colors.white.withOpacity(0.1),
+        gradient: LinearGradient(
+          colors: [
+            Colors.white.withOpacity(0.1),
+            Colors.white.withOpacity(0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
         border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
           onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Row(
               children: [
                 Container(
-                  width: 50,
-                  height: 50,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
-                    color: Colors.white.withOpacity(0.2),
                   ),
-                  child: Icon(icon, color: Colors.white, size: 24),
+                  child: Icon(icon, color: Colors.white, size: 30),
                 ),
 
                 const SizedBox(width: 16),
@@ -242,18 +227,19 @@ class _MenuButton extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Cinzel',
+                          color: Colors.white,
+                        ),
                       ),
-
                       const SizedBox(height: 4),
-
                       Text(
                         subtitle,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontFamily: 'Cinzel',
                           color: Colors.white.withOpacity(0.7),
                         ),
                       ),
@@ -264,7 +250,7 @@ class _MenuButton extends StatelessWidget {
                 Icon(
                   Icons.arrow_forward_ios,
                   color: Colors.white.withOpacity(0.5),
-                  size: 16,
+                  size: 18,
                 ),
               ],
             ),

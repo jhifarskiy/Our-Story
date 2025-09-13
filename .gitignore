@@ -44,23 +44,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# AI Models - большие файлы не коммитим в Git
-*.gguf
-*.ggml
-*.bin
-*.safetensors
-*.pt
-*.pth
-*.h5
-*.tflite
-assets/models/*.gguf
-assets/models/*.ggml
-assets/models/*.bin
-assets/models/*.safetensors
-
-# Дополнительные большие файлы
-*.zip
-*.tar.gz
-*.7z
-*.rar
-llama.cpp/
+# macOS
+.DS_Store
